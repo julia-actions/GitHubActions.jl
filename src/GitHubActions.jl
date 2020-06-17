@@ -105,7 +105,7 @@ end
 
 struct GitHubActionsLogger <: AbstractLogger end
 
-Logging.catch_exceptions(::GitHubActionsLogger) = false
+Logging.catch_exceptions(::GitHubActionsLogger) = true
 Logging.min_enabled_level(::GitHubActionsLogger) = Debug
 Logging.shouldlog(::GitHubActionsLogger, args...) = true
 
@@ -117,11 +117,7 @@ function Logging.handle_message(
         message *= "\n  $k = $v"
     end
     if level === Info
-        if isempty(kwargs)
-            println(message)
-        else
-            group(() -> println(message), "info")
-        end
+        println(message)
     else
         cmd = if level === Debug
             "debug"

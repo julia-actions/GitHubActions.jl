@@ -73,7 +73,7 @@ const GHA = GitHubActions
         @test match(rx("error"), (@capture_out @error "a")) !== nothing
         @test (@capture_out @info "a") == "a\n"
 
-        @test endswith((@capture_out @info "a" b=1 c=2), "::a\n  b = 1\nc = 2\n")
+        @test (@capture_out @info "a" b=1 c=2) == "a\n  b = 1\n  c = 2\n"
         @test endswith((@capture_out @warn "a" b=1 c=2), "::a%0A  b = 1%0A  c = 2\n")
     end
 end
