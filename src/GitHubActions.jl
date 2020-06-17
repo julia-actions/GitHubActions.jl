@@ -105,19 +105,16 @@ end
 
 struct GitHubActionsLogger <: AbstractLogger end
 
-Logging.shouldlog(::GitHubActionsLogger, args...) = true
-
-Logging.min_enabled_level(::GitHubActionsLogger) =
-    get(ENV, "RUNNER_DEBUG", "") == "1" ? Debug : Info
-
 Logging.catch_exceptions(::GitHubActionsLogger) = false
+Logging.min_enabled_level(::GitHubActionsLogger) = Debug
+Logging.shouldlog(::GitHubActionsLogger, args...) = true
 
 function Logging.handle_message(
     ::GitHubActionsLogger, level, msg, _module, group, id, file, line; kwargs...,
 )
     message = string(msg)
     for (k, v) in kwargs
-        message *= "\n  $k=$v"
+        message *= "\n  $k = $v"
     end
     if level === Info
         if isempty(kwargs)

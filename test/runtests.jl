@@ -1,7 +1,9 @@
+using Logging: with_logger
+using Test: @test, @testset, @test_throws
+
 using GitHubActions
 using SimpleMock: called_once_with, mock
 using Suppressor: @capture_out
-using Test: @test, @testset, @test_throws
 
 const GHA = GitHubActions
 
@@ -62,5 +64,16 @@ const GHA = GitHubActions
     mock(atexit) do ae
         @test (@capture_out set_failed("a")) == "::error::a\n"
         @test called_once_with(ae, GHA.fail)
+    end
+
+    rx(level) = Regex("^::$level file=$(@__FILE__),line=\\d+::a")
+    with_logger(GitHubActionsLogger()) do
+        @test match(rx("debug"), (@capture_out @debug "a")) !== nothing
+        @test match(rx("warning"), (@capture_out @warn "a")) !== nothing
+        @test match(rx("error"), (@capture_out @error "a")) !== nothing
+        @test (@capture_out @info "a") == "a\n"
+
+        @test endswith((@capture_out @info "a" b=1 c=2), "::a\n  b = 1\nc = 2\n")
+        @test endswith((@capture_out @warn "a" b=1 c=2), "::a%0A  b = 1%0A  c = 2\n")
     end
 end
