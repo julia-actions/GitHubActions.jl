@@ -11,6 +11,7 @@ export
     log_error,
     log_warning,
     save_state,
+    set_command_echo,
     set_env,
     set_failed,
     set_output,
@@ -55,22 +56,21 @@ end
 format_props(props) =
     join(map(p -> string(p.first, "=", esc_prop(p.second)), collect(pairs(props))), ',')
 
-command(cmd, props, val) = command(stdout, cmd, props, val)
-function command(io::IO, cmd, props, val)
+function command(cmd, props, val)
     s = CMD_MARKER * cmd
     isempty(props) || (s *= ' ' * format_props(props))
     s *= CMD_MARKER * esc_data(val)
-    println(io, s)
+    println(s)
 end
 
 end_group() = command("endgroup", (), "")
-get_state(k) = get(ENV, "STATE_$name", "")
+get_state(k) = get(ENV, "STATE_$k", "")
 log_debug(msg) = command("debug", (), msg)
 log_error(msg) = command("error", (), msg)
 log_warning(msg) = command("warning", (), msg)
-save_state(k, v) = command("save-state", (k=k,), v)
+save_state(k, v) = command("save-state", (name=k,), v)
 set_command_echo(enable) = command("echo", (), enable ? "on" : "off")
-set_output(k, v) = command("set-output", (k=k,), v)
+set_output(k, v) = command("set-output", (name=k,), v)
 set_secret(k) = command("add-mask", (), k)
 start_group(name) = command("group", (), name)
 
@@ -81,7 +81,7 @@ function add_path(v)
 end
 
 function get_input(k; required=false)
-    val = get(ENV, uppercase(replace(k, ' ' => '_')), "")
+    val = get(ENV, "INPUT_" * uppercase(replace(k, ' ' => '_')), "")
     required && isempty(val) && throw(MissingInputError(k))
     return string(strip(val))
 end
@@ -94,11 +94,12 @@ end
 function set_env(k, v)
     val = cmd_value(v)
     ENV[k] = val
-    command("set-env", (k=k,), val)
+    command("set-env", (name=k,), val)
 end
 
+fail() = exit(1)
 function set_failed(msg)
-    atexit(() -> exit(1))
+    atexit(fail)
     log_error(msg)
 end
 
