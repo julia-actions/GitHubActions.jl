@@ -232,6 +232,24 @@ function Logging.handle_message(
 end
 
 """
+    PACKAGESPEC = get_packagespec(packagespec_env_name = "PACKAGESPEC")
+
+This function returns the repository PackageSpec as a String.
+It also sets the ENV variable PACKAGESPEC by default.
+
+# Example
+In GitHubActions, you can pass this to `Pkg.develop()` by inerpolating it like this:
+```julia
+julia -e "using Pkg; Pkg.develop(\"\${{env.PACKAGESPEC}}\")"
+```
+"""
+function get_packagespec(packagespec_env_name = "PACKAGESPEC")
+    PACKAGESPEC = "PackageSpec(url = \"$(get_url())\", rev = \"$(get_rev())\")"
+    set_env(packagespec_env_name, PACKAGESPEC)
+    return PACKAGESPEC
+end
+
+"""
     REV = get_rev(rev_env_name = "REV")
 
 This function returns the git revision.
