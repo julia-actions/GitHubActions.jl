@@ -232,6 +232,24 @@ function Logging.handle_message(
 end
 
 """
+    REV = get_rev(rev_env_name = "REV")
+
+This function returns the git revision.
+It also sets an ENV variable REV by default.
+"""
+function get_rev(env_name = "REV")
+    GITHUB_HEAD_REF = get(ENV, "GITHUB_HEAD_REF", nothing)
+    GITHUB_REF = ENV["GITHUB_REF"]
+    if GITHUB_HEAD_REF == "" || GITHUB_HEAD_REF === nothing
+        REV = replace(GITHUB_REF, "refs/heads/"=>"")
+    else
+        REV = GITHUB_HEAD_REF
+    end
+    set_env(rev_env_name, REV)
+    return REV
+end
+
+"""
     REPOSITORY_URL = get_url(url_env_name = "REPOSITORY_URL")
 
 Returns the url of the repository.
