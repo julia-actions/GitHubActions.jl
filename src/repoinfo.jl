@@ -29,11 +29,11 @@ end
 
 
 """
-    ispullrequest()
+    isonpullrequest()
 
-Returns true if the running job is in a pull request
+Returns true if the running job is triggered on a pull request
 """
-function ispullrequest()
+function isonpullrequest()
     GITHUB_REF = ENV["GITHUB_REF"]
     return occursin("pull", GITHUB_REF)
 end
@@ -60,7 +60,7 @@ end
 Returns the url of the repository that is checked out.
 """
 function get_url()
-    if ispullrequest()
+    if isonpullrequest()
         # TODO find a more robust way
         repository_owner, repository_name = get_owner_and_name()
         repository_url = "https://github.com/$repository_owner/$repository_name"
