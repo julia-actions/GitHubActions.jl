@@ -35,7 +35,7 @@ Returns true if the running job is in a pull request
 """
 function ispullrequest()
     # TODO find a more robust way
-    owner = get_owner_and_name()[1]
+    owner = get_owner()
     actor = get_actor()
     return owner != actor
 end
