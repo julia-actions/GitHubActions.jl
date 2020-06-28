@@ -50,27 +50,6 @@ Returns true if running in CI env
 """
 isinCI() = get(ENV, "CI", nothing) !== nothing ? true : false
 
-"""
-    get_event()
-Returns the event.json content as a Dict.
-Returns `nothing` if the current environment is not CI.
-"""
-function get_event()
-    if isinCI()
-        filename = ENV["GITHUB_EVENT_PATH"]
-        return JSON.parsefile(filename; dicttype=Dict, inttype=Int64, use_mmap=true)
-    else
-        return nothing
-    end
-end
-
-"""
-    EVENT
-Current event.json as a Dict.
-It will be `nothing` if the current environment is not CI.
-"""
-EVENT = get_event()
-
 function esc_prop(val)
     s = cmd_value(val)
     s = replace(s, '%' => "%25")
@@ -261,7 +240,6 @@ function Logging.handle_message(
     end
 end
 
-include("repoinfo.jl")
-
+include("event/event.jl")
 
 end
