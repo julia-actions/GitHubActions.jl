@@ -232,6 +232,20 @@ function Logging.handle_message(
 end
 
 """
+    REPOSITORY_OWNER, REPOSITORY_NAME = get_owner_and_name(owner_env_name = "REPOSITORY_OWNER", name_env_name = "REPOSITORY_NAME")
+
+Returns the main owner and the name of the repository.
+It also sets the ENV variables REPOSITORY_OWNER and REPOSITORY_NAME by default.
+"""
+function get_owner_and_name(owner_env_name = "REPOSITORY_OWNER", name_env_name = "REPOSITORY_NAME")
+    GITHUB_REPOSITORY = ENV["GITHUB_REPOSITORY"]
+    REPOSITORY_OWNER, REPOSITORY_NAME = split(GITHUB_REPOSITORY, '/')
+    set_env(owner_env_name, REPOSITORY_OWNER)
+    set_env(name_env_name, REPOSITORY_NAME)
+    return REPOSITORY_OWNER, REPOSITORY_NAME
+end
+
+"""
 ACTOR = get_actor(actor_env_name = "ACTOR")
 
 Returns the actor of GitHub action.
