@@ -2,6 +2,7 @@ module GitHubActions
 
 export
     GitHubActionsLogger,
+    isinCI,
     add_path,
     end_group,
     get_input,
@@ -40,6 +41,12 @@ Base.showerror(io::IO, e::MissingInputError) =
 cmd_value(::Nothing) = ""
 cmd_value(s::AbstractString) = s
 cmd_value(x) = json(x)
+
+"""
+    isinCI()
+Returns true if running in CI env
+"""
+isinCI() = get(ENV, "CI", nothing) !== nothing ? true : false
 
 function esc_prop(val)
     s = cmd_value(val)
