@@ -250,17 +250,28 @@ function get_packagespec(packagespec_env_name = "PACKAGESPEC")
 end
 
 """
+    isfork()
+
+Returns true if the repository is a fork
+"""
+function isfork()
+    # TODO check if it returns "" or nothing
+    GITHUB_HEAD_REF = get(ENV, "GITHUB_HEAD_REF", nothing)
+    return !(GITHUB_HEAD_REF == "" || GITHUB_HEAD_REF === nothing)
+end
+
+"""
     REV = get_rev(rev_env_name = "REV")
 
 This function returns the git revision.
 It also sets an ENV variable REV by default.
 """
 function get_rev(env_name = "REV")
-    GITHUB_HEAD_REF = get(ENV, "GITHUB_HEAD_REF", nothing)
-    GITHUB_REF = ENV["GITHUB_REF"]
-    if GITHUB_HEAD_REF == "" || GITHUB_HEAD_REF === nothing
+    if !isfork()
+        GITHUB_REF = ENV["GITHUB_REF"]
         REV = replace(GITHUB_REF, "refs/heads/"=>"")
     else
+        GITHUB_HEAD_REF = ENV["GITHUB_HEAD_REF"]
         REV = GITHUB_HEAD_REF
     end
     set_env(rev_env_name, REV)
