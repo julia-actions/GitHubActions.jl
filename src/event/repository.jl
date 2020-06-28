@@ -35,11 +35,11 @@ ssh url as String like `"git@github.com:aminya/GitHubActions.jl.git"`
 event_repository_ssh_url() = event_repository()["ssh_url"]
 
 """
-    PACKAGESPEC = event_packagespec(packagespec_env_name = "PACKAGESPEC")
+    package_spec = event_packagespec(packagespec_env_name = "PACKAGESPEC")
 
-This function returns the repository PackageSpec as a String.
-It also sets the ENV variable PACKAGESPEC by default.
+This function returns the repository PackageSpec.
 
+It also sets the ENV variable PACKAGESPEC as a String.
 # Example
 In GitHubActions, you can pass this to `Pkg.develop()` by inerpolating it like this:
 ```julia
@@ -47,9 +47,12 @@ julia -e "using Pkg; Pkg.develop(\"\${{env.PACKAGESPEC}}\")"
 ```
 """
 function event_packagespec(packagespec_env_name = "PACKAGESPEC")
-    PACKAGESPEC = "PackageSpec(url = \"$(event_repository_html_url())\", rev = \"$(event_rev())\")"
+    url = event_repository_html_url()
+    rev = event_rev()
+    package_spec = PackageSpec(url = url, rev = rev)
+    PACKAGESPEC = "PackageSpec(url = \"$url\", rev = \"$rev\")"
     set_env(packagespec_env_name, PACKAGESPEC)
-    return PACKAGESPEC
+    return package_spec
 end
 
 """
