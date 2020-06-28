@@ -232,6 +232,19 @@ function Logging.handle_message(
 end
 
 """
+    REPOSITORY_URL = get_url(url_env_name = "REPOSITORY_URL")
+
+Returns the url of the repository.
+It also sets the ENV variable REPOSITORY_URL by default.
+"""
+function get_url(url_env_name = "REPOSITORY_URL")
+    # TODO find a more robust way
+    REPOSITORY_URL = "https://github.com/$(get_actor())/$(get_owner_and_name()[2])"
+    set_env(url_env_name, REPOSITORY_URL)
+    return REPOSITORY_URL
+end
+
+"""
     REPOSITORY_OWNER, REPOSITORY_NAME = get_owner_and_name(owner_env_name = "REPOSITORY_OWNER", name_env_name = "REPOSITORY_NAME")
 
 Returns the main owner and the name of the repository.
