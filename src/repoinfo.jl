@@ -73,6 +73,17 @@ function get_owner_and_name(owner_env_name = "REPOSITORY_OWNER", name_env_name =
 end
 
 """
+Returns the name of the repository. See [`get_owner_and_name`](@ref)
+"""
+get_owner() = get_owner_and_name()[1]
+
+"""
+Returns the main owner of the repository. See [`get_owner_and_name`](@ref)
+"""
+get_name() = get_owner_and_name()[2]
+
+
+"""
 ACTOR = get_actor(actor_env_name = "ACTOR")
 
 Returns the actor of GitHub action.
