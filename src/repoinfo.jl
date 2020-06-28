@@ -34,10 +34,8 @@ end
 Returns true if the running job is in a pull request
 """
 function ispullrequest()
-    # TODO find a more robust way
-    owner = get_owner()
-    actor = get_actor()
-    return owner != actor
+    GITHUB_REF = ENV["GITHUB_REF"]
+    return occursin("pull", GITHUB_REF)
 end
 
 """
