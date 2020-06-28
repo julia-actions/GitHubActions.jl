@@ -39,22 +39,21 @@ function ispullrequest()
     actor = get_actor()
     return owner != actor
 end
+
 """
-    REV = get_rev(rev_env_name = "REV")
+    rev = get_rev()
 
 This function returns the git revision.
-It also sets an ENV variable REV by default.
 """
-function get_rev(env_name = "REV")
+function get_rev()
     if !isfork()
         GITHUB_REF = ENV["GITHUB_REF"]
-        REV = replace(GITHUB_REF, "refs/heads/"=>"")
+        rev = replace(GITHUB_REF, "refs/heads/"=>"")
     else
         GITHUB_HEAD_REF = ENV["GITHUB_HEAD_REF"]
-        REV = GITHUB_HEAD_REF
+        rev = GITHUB_HEAD_REF
     end
-    set_env(rev_env_name, REV)
-    return REV
+    return rev
 end
 
 """
@@ -71,17 +70,14 @@ function get_url(url_env_name = "REPOSITORY_URL")
 end
 
 """
-    REPOSITORY_OWNER, REPOSITORY_NAME = get_owner_and_name(owner_env_name = "REPOSITORY_OWNER", name_env_name = "REPOSITORY_NAME")
+    repository_owner, repository_name = get_owner_and_name()
 
 Returns the main owner and the name of the repository.
-It also sets the ENV variables REPOSITORY_OWNER and REPOSITORY_NAME by default.
 """
-function get_owner_and_name(owner_env_name = "REPOSITORY_OWNER", name_env_name = "REPOSITORY_NAME")
+function get_owner_and_name()
     GITHUB_REPOSITORY = ENV["GITHUB_REPOSITORY"]
-    REPOSITORY_OWNER, REPOSITORY_NAME = split(GITHUB_REPOSITORY, '/')
-    set_env(owner_env_name, REPOSITORY_OWNER)
-    set_env(name_env_name, REPOSITORY_NAME)
-    return REPOSITORY_OWNER, REPOSITORY_NAME
+    repository_owner, repository_name = split(GITHUB_REPOSITORY, '/')
+    return repository_owner, repository_name
 end
 
 """
@@ -96,13 +92,11 @@ get_name() = get_owner_and_name()[2]
 
 
 """
-ACTOR = get_actor(actor_env_name = "ACTOR")
+actor = get_actor(actor_env_name = "actor")
 
 Returns the actor of GitHub action.
-It also sets the ENV variable ACTOR by default.
 """
-function get_actor(actor_env_name = "ACTOR")
-    ACTOR = ENV["GITHUB_ACTOR"]
-    set_env(actor_env_name, ACTOR)
-    return ACTOR
+function get_actor()
+    actor = ENV["GITHUB_ACTOR"]
+    return actor
 end
