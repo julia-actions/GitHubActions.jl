@@ -57,16 +57,19 @@ function get_rev()
 end
 
 """
-    REPOSITORY_URL = get_url(url_env_name = "REPOSITORY_URL")
+    repository_url = get_url()
 
-Returns the url of the repository.
-It also sets the ENV variable REPOSITORY_URL by default.
+Returns the url of the repository that is checked out.
 """
-function get_url(url_env_name = "REPOSITORY_URL")
-    # TODO find a more robust way
-    REPOSITORY_URL = "https://github.com/$(get_actor())/$(get_owner_and_name()[2])"
-    set_env(url_env_name, REPOSITORY_URL)
-    return REPOSITORY_URL
+function get_url()
+    if ispullrequest()
+        # TODO find a more robust way
+        repository_owner, repository_name = get_owner_and_name()
+        repository_url = "https://github.com/$repository_owner/$repository_name"
+    else
+        repository_url = "https://github.com/$(get_actor())/$(get_name())"
+    end
+    return repository_url
 end
 
 """
