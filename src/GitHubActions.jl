@@ -231,4 +231,16 @@ function Logging.handle_message(
     end
 end
 
+"""
+ACTOR = get_actor(actor_env_name = "ACTOR")
+
+Returns the actor of GitHub action.
+It also sets the ENV variable ACTOR by default.
+"""
+function get_actor(actor_env_name = "ACTOR")
+    ACTOR = ENV["GITHUB_ACTOR"]
+    set_env(actor_env_name, ACTOR)
+    return ACTOR
+end
+
 end
