@@ -19,7 +19,7 @@ end
 """
     isfork()
 
-Returns true if the repository is a fork
+Returns true if the running job is in a fork
 """
 function isfork()
     # TODO check if it returns "" or nothing
@@ -27,6 +27,18 @@ function isfork()
     return !(GITHUB_HEAD_REF == "" || GITHUB_HEAD_REF === nothing)
 end
 
+
+"""
+    ispullrequest()
+
+Returns true if the running job is in a pull request
+"""
+function ispullrequest()
+    # TODO find a more robust way
+    owner = get_owner_and_name()[1]
+    actor = get_actor()
+    return owner != actor
+end
 """
     REV = get_rev(rev_env_name = "REV")
 
