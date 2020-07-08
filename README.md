@@ -8,9 +8,12 @@ Utilities for working within GitHub Actions, modelled after [`actions/core`](htt
 Perhaps the most common use case is to set the global logger to one compatible with GitHub Actions' log format:
 
 ```jl
+# Using GitHubActions logger in CI
 using Logging: global_logger
 using GitHubActions: GitHubActionsLogger
-get(ENV, "GITHUB_ACTIONS", "false") == "true" && global_logger(GitHubActionsLogger())
+function __init__()
+    get(ENV, "GITHUB_ACTIONS", "false") == "true" && global_logger(GitHubActionsLogger())
+end
 @warn "This warning will be visible in your GitHub Actions logs!"
 ```
 
