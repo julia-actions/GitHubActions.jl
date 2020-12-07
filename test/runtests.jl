@@ -73,7 +73,7 @@ const GHA = GitHubActions
             @test read(file, String) == "c<<EOF\n[]\nEOF\n"
             set_env("d", nothing)
             @test ENV["d"] == ""
-            @test read(file, String) == "c<<EOF\n[]\nEOF\nd<<EOF\nEOF\n"
+            @test read(file, String) == "c<<EOF\n[]\nEOF\nd<<EOF\n\nEOF\n"
         end
     end
 
