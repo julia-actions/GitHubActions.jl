@@ -71,6 +71,8 @@ end
 
 fail() = exit(1)
 
+add_to_file(k, v) = open(f -> println(f, v), ENV[k], "a")
+
 """
     end_group()
 
@@ -152,7 +154,7 @@ Add `v` to the system `PATH`.
 function add_path(v)
     sep = @static Sys.iswindows() ? ';' : ':'
     ENV["PATH"] = v * sep * ENV["PATH"]
-    command("add-path", (), v)
+    add_to_file("GITHUB_PATH", v)
 end
 
 """
@@ -186,7 +188,11 @@ Set environment variable `k` to value `v`.
 function set_env(k, v)
     val = cmd_value(v)
     ENV[k] = val
-    command("set-env", (name=k,), val)
+    delimiter = "EOF"
+    while occursin(delimiter, val)
+        delimiter *= "EOF"
+    end
+    add_to_file("GITHUB_ENV", join(["$k<<$delimiter", val, delimiter], "\n"))
 end
 
 """

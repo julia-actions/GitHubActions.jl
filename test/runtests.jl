@@ -38,10 +38,16 @@ const GHA = GitHubActions
 
     @test (@capture_out start_group("a")) == "::group::a\n"
 
-    withenv("PATH" => "/bin") do
-        @test (@capture_out add_path("a")) == "::add-path::a\n"
-        sep = Sys.iswindows() ? ';' : ':'
-        @test ENV["PATH"] == "a$sep/bin"
+    mktemp() do file, io
+        withenv("GITHUB_PATH" => file, "PATH" => "/bin") do
+            sep = Sys.iswindows() ? ';' : ':'
+            add_path("a")
+            @test ENV["PATH"] == string("a", sep, "/bin")
+            @test read(file, String) == "a\n"
+            add_path("b")
+            @test ENV["PATH"] == string("b", sep, "a", sep, "/bin")
+            @test read(file, String) == "a\nb\n"
+        end
     end
 
     withenv(() -> (@test get_input("A") == ""), "INPUT_A" => "")
@@ -54,11 +60,21 @@ const GHA = GitHubActions
 
     @test (@capture_out group(() -> println("!"), "a")) == "::group::a\n!\n::endgroup::\n"
 
-    withenv("a" => nothing) do
-        @test (@capture_out set_env("a", "b")) == "::set-env name=a::b\n"
-        @test ENV["a"] == "b"
-        @test (@capture_out set_env("a", ())) == "::set-env name=a::[]\n"
-        @test ENV["a"] == "[]"
+    mktemp() do file, io
+        withenv("GITHUB_ENV" => file, map(c -> string(c) => nothing, 'a':'z')...) do
+            set_env("a", "b")
+            @test ENV["a"] == "b"
+            @test read(file, String) == "a<<EOF\nb\nEOF\n"
+            set_env("b", "fooEOFbar")
+            @test read(file, String) == "a<<EOF\nb\nEOF\nb<<EOFEOF\nfooEOFbar\nEOFEOF\n"
+            rm(file)
+            set_env("c", [])
+            @test ENV["c"] == "[]"
+            @test read(file, String) == "c<<EOF\n[]\nEOF\n"
+            set_env("d", nothing)
+            @test ENV["d"] == ""
+            @test read(file, String) == "c<<EOF\n[]\nEOF\nd<<EOF\nEOF\n"
+        end
     end
 
     mock(atexit) do ae
