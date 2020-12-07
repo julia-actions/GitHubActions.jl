@@ -91,5 +91,8 @@ const GHA = GitHubActions
 
         @test (@capture_out @info "a" b=1 c=2) == "a\n  b = 1\n  c = 2\n"
         @test endswith((@capture_out @warn "a" b=1 c=2), "::a%0A  b = 1%0A  c = 2\n")
+
+        expected = "::warning file=bar,line=1::foo\n"
+        @test (@capture_out @warn "foo" location=("bar", 1)) == expected
     end
 end
