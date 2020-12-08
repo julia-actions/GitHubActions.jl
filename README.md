@@ -11,7 +11,7 @@ Perhaps the most common use case is to set the global logger to one compatible w
 
 For package code, set the global logger in `__init__`.
 
-```
+```jl
 using Logging: global_logger
 using GitHubActions: GitHubActionsLogger
 function __init__()
