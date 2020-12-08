@@ -77,9 +77,11 @@ const GHA = GitHubActions
         end
     end
 
-    mock(atexit) do ae
-        @test (@capture_out set_failed("a")) == "::error::a\n"
-        @test called_once_with(ae, GHA.fail)
+    if VERSION.minor < 6
+        mock(atexit) do ae
+            @test (@capture_out set_failed("a")) == "::error::a\n"
+            @test called_once_with(ae, GHA.fail)
+        end
     end
 
     rx(level) = Regex("^::$level file=$(@__FILE__),line=\\d+::a")
