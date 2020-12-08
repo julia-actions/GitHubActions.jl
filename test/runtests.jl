@@ -77,9 +77,11 @@ const GHA = GitHubActions
         end
     end
 
-    mock(atexit) do ae
-        @test (@capture_out set_failed("a")) == "::error::a\n"
-        @test called_once_with(ae, GHA.fail)
+    if VERSION.minor < 6
+        mock(atexit) do ae
+            @test (@capture_out set_failed("a")) == "::error::a\n"
+            @test called_once_with(ae, GHA.fail)
+        end
     end
 
     rx(level) = Regex("^::$level file=$(@__FILE__),line=\\d+::a")
@@ -91,5 +93,8 @@ const GHA = GitHubActions
 
         @test (@capture_out @info "a" b=1 c=2) == "a\n  b = 1\n  c = 2\n"
         @test endswith((@capture_out @warn "a" b=1 c=2), "::a%0A  b = 1%0A  c = 2\n")
+
+        expected = "::warning file=bar,line=1::foo\n"
+        @test (@capture_out @warn "foo" location=("bar", 1)) == expected
     end
 end

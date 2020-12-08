@@ -217,8 +217,11 @@ Logging.min_enabled_level(::GitHubActionsLogger) = Debug
 Logging.shouldlog(::GitHubActionsLogger, args...) = true
 
 function Logging.handle_message(
-    ::GitHubActionsLogger, level, msg, _module, group, id, file, line; kwargs...,
+    ::GitHubActionsLogger,
+    level, msg, _module, group, id, file, line;
+    location=nothing, kwargs...,
 )
+    file, line = something(location, (file, line))
     message = string(msg)
     for (k, v) in kwargs
         message *= "\n  $k = $v"
