@@ -224,7 +224,12 @@ function Logging.handle_message(
     file, line = something(location, (file, line))
     message = string(msg)
     for (k, v) in kwargs
-        message *= "\n  $k = " * sprint(Logging.showvalue, v)
+        result = sprint(Logging.showvalue, v)
+        message *= "\n  $k = " * if occursin('\n', result)
+            "\n" * replace(result, '\n' => "    \n")
+        else
+            result
+        end
     end
     if level === Info
         println(message)
