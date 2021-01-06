@@ -41,7 +41,7 @@ cmd_value(::Nothing) = ""
 cmd_value(s::AbstractString) = s
 cmd_value(x) = json(x)
 
-function esc_prop(val)
+function esc_data(val)
     s = cmd_value(val)
     s = replace(s, '%' => "%25")
     s = replace(s, '\r' => "%0D")
@@ -49,7 +49,7 @@ function esc_prop(val)
     return s
 end
 
-function esc_data(val)
+function esc_prop(val)
     s = cmd_value(val)
     s = replace(s, '%' => "%25")
     s = replace(s, '\r' => "%0D")
