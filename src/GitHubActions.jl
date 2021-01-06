@@ -226,7 +226,7 @@ function Logging.handle_message(
     for (k, v) in kwargs
         result = sprint(Logging.showvalue, v)
         message *= "\n  $k = " * if occursin('\n', result)
-            "\n" * replace(result, '\n' => "\n    ")
+            replace("\n" * result, '\n' => "\n    ")
         else
             result
         end
