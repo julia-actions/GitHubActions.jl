@@ -224,7 +224,7 @@ function Logging.handle_message(
     file, line = something(location, (file, line))
     message = string(msg)
     for (k, v) in kwargs
-        message *= "\n  $k = $v"
+        message *= "\n  $k = " * sprint(Logging.showvalue, v)
     end
     if level === Info
         println(message)
