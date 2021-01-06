@@ -15,7 +15,7 @@ const GHA = GitHubActions
     @test (@capture_out GHA.command("a", (b=1,), "")) == "::a b=1::\n"
     @test (@capture_out GHA.command("a", (b=1, c=2), "")) == "::a b=1,c=2::\n"
     @test (@capture_out GHA.command("a", (b="c%d\re\nf",), "")) == "::a b=c%25d%0De%0Af::\n"
-    @test (@capture_out GHA.command("a", (), "a%b\rc\nd:e,f")) == "::a::a%25b%0Dc%0Ad%3Ae%2Cf\n"
+    @test (@capture_out GHA.command("a", (), "a%b\rc\nd:e,f")) == "::a::a%25b%0Dc%0Ad:e,f\n"
 
     @test (@capture_out end_group()) == "::endgroup::\n"
 
