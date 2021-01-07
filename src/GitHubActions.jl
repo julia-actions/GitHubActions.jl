@@ -41,7 +41,7 @@ cmd_value(::Nothing) = ""
 cmd_value(s::AbstractString) = s
 cmd_value(x) = json(x)
 
-function esc_prop(val)
+function esc_data(val)
     s = cmd_value(val)
     s = replace(s, '%' => "%25")
     s = replace(s, '\r' => "%0D")
@@ -49,7 +49,7 @@ function esc_prop(val)
     return s
 end
 
-function esc_data(val)
+function esc_prop(val)
     s = cmd_value(val)
     s = replace(s, '%' => "%25")
     s = replace(s, '\r' => "%0D")
@@ -224,7 +224,12 @@ function Logging.handle_message(
     file, line = something(location, (file, line))
     message = string(msg)
     for (k, v) in kwargs
-        message *= "\n  $k = $v"
+        result = sprint(Logging.showvalue, v)
+        message *= "\n  $k = " * if occursin('\n', result)
+            replace("\n" * result, '\n' => "\n    ")
+        else
+            result
+        end
     end
     if level === Info
         println(message)
