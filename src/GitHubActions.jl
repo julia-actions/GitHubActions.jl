@@ -241,8 +241,6 @@ function Logging.handle_message(
         elseif level === Error
             "error"
         end
-        # https://github.community/t/github-actions-error-reporting-as-annotation/17961/2
-        message = replace(message, "\n" => "%0A")
         command(cmd, (file=file, line=line), message)
     end
 end
