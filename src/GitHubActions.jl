@@ -224,7 +224,7 @@ function Logging.handle_message(
     file, line = something(location, (file, line))
     message = string(msg)
     for (k, v) in kwargs
-        result = sprint(Logging.showvalue, v)
+        result = sprint(Logging.showvalue, v; context=IOContext(stdout))
         message *= "\n  $k = " * if occursin('\n', result)
             replace("\n" * result, '\n' => "\n    ")
         else
@@ -241,6 +241,8 @@ function Logging.handle_message(
         elseif level === Error
             "error"
         end
+        # https://github.community/t/github-actions-error-reporting-as-annotation/17961/2
+        message = replace(message, "\n" => "%0A")
         command(cmd, (file=file, line=line), message)
     end
 end
