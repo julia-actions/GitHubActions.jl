@@ -221,7 +221,9 @@ function Logging.handle_message(
     level, msg, _module, group, id, file, line;
     location=nothing, kwargs...,
 )
-    file, line = something(location, (file, line))
+    # file, line = something(location, (file, line))
+    file = relpath(file, ENV["GITHUB_WORKSPACE"])
+    println("Logging (debug): file=$file line=$line")
     message = string(msg)
     for (k, v) in kwargs
         result = sprint(Logging.showvalue, v; context=IOContext(stdout))
