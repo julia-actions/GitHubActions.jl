@@ -3,7 +3,7 @@
 [![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://julia-actions.github.io/GitHubActions.jl)
 [![Build Status](https://github.com/julia-actions/GitHubActions.jl/workflows/CI/badge.svg)](https://github.com/julia-actions/GitHubActions.jl/actions)
 
-Utilities for working within GitHub Actions, modelled after [`actions/core`](https://github.com/actions/toolkit/tree/master/packages/core).
+Utilities for working within GitHub Actions, modelled after [`actions/core`](https://github.com/actions/toolkit/tree/main/packages/core).
 
 Perhaps the most common use case is to set the global logger to one compatible with GitHub Actions' log format:
 
