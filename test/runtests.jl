@@ -84,7 +84,15 @@ const GHA = GitHubActions
         end
     end
 
-    rx(level) = Regex("^::$level file=$(@__FILE__),line=\\d+::a")
+    function rx(level)
+        workspace = get(ENV, "GITHUB_WORKSPACE", nothing)
+        file = @__FILE__
+        if workspace !== nothing
+            file = relpath(file, workspace)
+        end
+        return Regex("^::$level file=$(file),line=\\d+::a")
+    end
+
     with_logger(GitHubActionsLogger()) do
         @test match(rx("debug"), (@capture_out @debug "a")) !== nothing
         @test match(rx("warning"), (@capture_out @warn "a")) !== nothing
@@ -94,7 +102,7 @@ const GHA = GitHubActions
         @test (@capture_out @info "a" b=1 c=2 d=Text("e\nf")) == "a\n  b = 1\n  c = 2\n  d = \n    e\n    f\n"
         @test endswith((@capture_out @warn "a" b=1 c=2), "::a%0A  b = 1%0A  c = 2\n")
 
-        expected = "::warning file=bar,line=1::foo\n"
+        expected = "::warning file=test/bar,line=1::foo\n"
         @test (@capture_out @warn "foo" location=("bar", 1)) == expected
     end
 end

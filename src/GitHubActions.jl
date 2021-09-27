@@ -222,6 +222,12 @@ function Logging.handle_message(
     location=nothing, kwargs...,
 )
     file, line = something(location, (file, line))
+    
+    workspace = get(ENV, "GITHUB_WORKSPACE", nothing)
+    if workspace !== nothing
+        # In order for inline annotations to work correctly:
+        file = relpath(file, workspace)
+    end
     message = string(msg)
     for (k, v) in kwargs
         result = sprint(Logging.showvalue, v)
