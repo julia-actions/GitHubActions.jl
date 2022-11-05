@@ -22,6 +22,8 @@ using Logging: Logging, AbstractLogger, Debug, Info, Warn, Error
 
 using JSON: json
 
+using UUIDs
+
 const CMD_MARKER = "::"
 
 """
@@ -188,10 +190,12 @@ Set environment variable `k` to value `v`.
 function set_env(k, v)
     val = cmd_value(v)
     ENV[k] = val
-    delimiter = "EOF"
-    while occursin(delimiter, val)
-        delimiter *= "EOF"
-    end
+    delimiter = uuid4()
+
+    # Safety precaution in case UUID generation is exploitable
+    !occursin(string(delimiter), val) || (set_failed("value of environment variable must not contain the delimiter $delimiter"); exit())
+    !occursin(string(delimiter), k) || (set_failed("name of environment variable must not contain the delimiter $delimiter"); exit())
+
     add_to_file("GITHUB_ENV", join(["$k<<$delimiter", val, delimiter], "\n"))
 end
 
