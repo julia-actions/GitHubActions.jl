@@ -22,7 +22,7 @@ using Logging: Logging, AbstractLogger, Debug, Info, Warn, Error
 
 using JSON: json
 
-using UUIDs
+using UUIDs: uuid4
 
 const CMD_MARKER = "::"
 

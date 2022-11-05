@@ -1,8 +1,9 @@
 using Logging: with_logger
+using UUIDs: UUID, uuid4
 using Test: @test, @testset, @test_throws
 
 using GitHubActions
-using SimpleMock: called_once_with, mock
+using SimpleMock: called_once_with, mock, Mock
 using Suppressor: @capture_out
 
 const GHA = GitHubActions
@@ -61,19 +62,29 @@ const GHA = GitHubActions
     @test (@capture_out group(() -> println("!"), "a")) == "::group::a\n!\n::endgroup::\n"
 
     mktemp() do file, io
-        withenv("GITHUB_ENV" => file, map(c -> string(c) => nothing, 'a':'z')...) do
-            set_env("a", "b")
-            @test ENV["a"] == "b"
-            @test read(file, String) == "a<<EOF\nb\nEOF\n"
-            set_env("b", "fooEOFbar")
-            @test read(file, String) == "a<<EOF\nb\nEOF\nb<<EOFEOF\nfooEOFbar\nEOFEOF\n"
-            rm(file)
-            set_env("c", [])
-            @test ENV["c"] == "[]"
-            @test read(file, String) == "c<<EOF\n[]\nEOF\n"
-            set_env("d", nothing)
-            @test ENV["d"] == ""
-            @test read(file, String) == "c<<EOF\n[]\nEOF\nd<<EOF\n\nEOF\n"
+        uuid = UUID("9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d")
+        delimiter = "ghadelimiter_$uuid"
+        mock((uuid4) => Mock(uuid)) do _
+            withenv("GITHUB_ENV" => file, map(c -> string(c) => nothing, 'a':'z')...) do
+                set_env("a", "b")
+                @test ENV["a"] == "b"
+                @test read(file, String) == "a<<$delimiter\nb\n$delimiter\n"
+
+                if VERSION.minor < 6
+                    mock(atexit) do ae
+                        set_env("b", "foo$(delimiter)bar")
+                        @test called_once_with(ae, GHA.fail)
+                    end
+                end
+
+                rm(file)
+                set_env("c", [])
+                @test ENV["c"] == "[]"
+                @test read(file, String) == "c<<$delimiter\n[]\n$delimiter\n"
+                set_env("d", nothing)
+                @test ENV["d"] == ""
+                @test read(file, String) == "c<<$delimiter\n[]\n$delimiter\nd<<$delimiter\n\n$delimiter\n"
+            end
         end
     end
 
