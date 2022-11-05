@@ -27,12 +27,22 @@ const GHA = GitHubActions
     @test (@capture_out log_error("a")) == "::error::a\n"
     @test (@capture_out log_warning("a")) == "::warning::a\n"
 
-    @test (@capture_out save_state("a", "b")) == "::save-state name=a::b\n"
+    mktemp() do file, io
+        withenv("GITHUB_STATE" => file) do
+            save_state("a", "b")
+            @test read(file, String) == "a=b\n"
+        end
+    end
 
     @test (@capture_out set_command_echo(true)) == "::echo::on\n"
     @test (@capture_out set_command_echo(false)) == "::echo::off\n"
 
-    @test (@capture_out set_output("a", "b")) == "::set-output name=a::b\n"
+    mktemp() do file, io
+        withenv("GITHUB_OUTPUT" => file) do
+            set_output("a", "b")
+            @test read(file, String) == "a=b\n"
+        end
+    end
 
     @test (@capture_out set_secret("a")) == "::add-mask::a\n"
 
