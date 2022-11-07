@@ -116,7 +116,7 @@ log_warning(msg) = command("warning", (), msg)
 
 Save value `v` with name `k` to state.
 """
-save_state(k, v) = command("save-state", (name=k,), v)
+save_state(k, v) = add_to_file("GITHUB_STATE", "$k=$v")
 
 """
     set_command_echo(enable)
@@ -130,7 +130,7 @@ set_command_echo(enable) = command("echo", (), enable ? "on" : "off")
 
 Set the output with name `k` to value `v`.
 """
-set_output(k, v) = command("set-output", (name=k,), v)
+set_output(k, v) = add_to_file("GITHUB_OUTPUT", "$k=$v")
 
 """
     set_secret(v)
