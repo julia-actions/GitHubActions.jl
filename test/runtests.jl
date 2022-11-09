@@ -70,14 +70,18 @@ const GHA = GitHubActions
                 @test ENV["a"] == "b"
                 @test read(file, String) == "a<<$delimiter\nb\n$delimiter\n"
 
-                mock(set_failed) do sf
-                    set_env("b", "foo$(delimiter)bar")
-                    @test called_once_with(sf, "value of environment variable must not contain the delimiter $delimiter")
+                mock(exit) do _
+                    mock(set_failed) do sf
+                        set_env("b", "foo$(delimiter)bar")
+                        @test called_once_with(sf, "value of environment variable must not contain the delimiter $delimiter")
+                    end
                 end
 
-                mock(set_failed) do sf
-                    set_env("b$(delimiter)", "c")
-                    @test called_once_with(sf, "name of environment variable must not contain the delimiter $delimiter")
+                mock(exit) do _
+                    mock(set_failed) do sf
+                        set_env("b$(delimiter)", "c")
+                        @test called_once_with(sf, "name of environment variable must not contain the delimiter $delimiter")
+                    end
                 end
 
                 rm(file)
