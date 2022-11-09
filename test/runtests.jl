@@ -75,6 +75,11 @@ const GHA = GitHubActions
                     @test called_once_with(ae, "value of environment variable must not contain the delimiter $delimiter")
                 end
 
+                mock(set_failed) do ae
+                    set_env("b$(delimiter)", "c")
+                    @test called_once_with(ae, "name of environment variable must not contain the delimiter $delimiter")
+                end
+
                 rm(file)
                 set_env("c", [])
                 @test ENV["c"] == "[]"
