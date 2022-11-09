@@ -70,11 +70,9 @@ const GHA = GitHubActions
                 @test ENV["a"] == "b"
                 @test read(file, String) == "a<<$delimiter\nb\n$delimiter\n"
 
-                if VERSION.minor < 6
-                    mock(atexit) do ae
-                        set_env("b", "foo$(delimiter)bar")
-                        @test called_once_with(ae, GHA.fail)
-                    end
+                mock(set_failed) do ae
+                    set_env("b", "foo$(delimiter)bar")
+                    @test called_once_with(ae, "value of environment variable must not contain the delimiter $delimiter")
                 end
 
                 rm(file)
