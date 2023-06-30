@@ -247,7 +247,7 @@ function Logging.handle_message(
         elseif level === Error
             "error"
         else
-            "unknown"
+            "notice"
         end
         command(cmd, (file=file, line=line), message)
     end
