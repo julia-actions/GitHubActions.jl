@@ -35,27 +35,36 @@ struct MissingInputError <: Exception
 end
 
 Base.showerror(io::IO, e::MissingInputError) =
-    print(io, "Input required and not supplied: $(e.k)")
+    print(io, "Input required and not supplied: ", e.k)
 
 cmd_value(::Nothing) = ""
 cmd_value(s::AbstractString) = s
 cmd_value(x) = json(x)
 
+esc_data(::Nothing) = ""
 function esc_data(val)
     s = cmd_value(val)
-    s = replace(s, '%' => "%25")
-    s = replace(s, '\r' => "%0D")
-    s = replace(s, '\n' => "%0A")
+    if VERSION >= v"1.7"
+        s = replace(s, '%' => "%25", '\r' => "%0D", '\n' => "%0A")
+    else
+        s = replace(s, '%' => "%25")
+        s = replace(s, '\r' => "%0D")
+        s = replace(s, '\n' => "%0A")
+    end
     return s
 end
 
 function esc_prop(val)
     s = cmd_value(val)
-    s = replace(s, '%' => "%25")
-    s = replace(s, '\r' => "%0D")
-    s = replace(s, '\n' => "%0A")
-    s = replace(s, ':' => "%3A")
-    s = replace(s, ',' => "%2C")
+    if VERSION >= v"1.7"
+        s = replace(s, '%' => "%25", '\r' => "%0D", '\n' => "%0A", ':' => "%3A", ',' => "%2C")
+    else
+        s = replace(s, '%' => "%25")
+        s = replace(s, '\r' => "%0D")
+        s = replace(s, '\n' => "%0A")
+        s = replace(s, ':' => "%3A")
+        s = replace(s, ',' => "%2C")
+    end
     return s
 end
 
@@ -63,10 +72,11 @@ format_props(props) =
     join(map(p -> string(p.first, "=", esc_prop(p.second)), collect(pairs(props))), ',')
 
 function command(cmd, props, val)
-    s = CMD_MARKER * cmd
-    isempty(props) || (s *= ' ' * format_props(props))
-    s *= CMD_MARKER * esc_data(val)
-    println(s)
+    print(CMD_MARKER, cmd)
+    if !isempty(props) && (cmd == "notice" || cmd == "warning" || cmd == "error")
+        print(' ', format_props(props))
+    end
+    println(CMD_MARKER, esc_data(val))
 end
 
 fail() = exit(1)
@@ -78,7 +88,7 @@ add_to_file(k, v) = open(f -> println(f, v), ENV[k], "a")
 
 End a group that was started with [`start_group`](@ref).
 """
-end_group() = command("endgroup", (), "")
+end_group() = command("endgroup", (), nothing)
 
 """
     get_state(k)
