@@ -68,13 +68,16 @@ function esc_prop(val)
     return s
 end
 
-format_props(props) =
-    join(map(p -> string(p.first, "=", esc_prop(p.second)), collect(pairs(props))), ',')
-
 function command(cmd, props, val)
     print(CMD_MARKER, cmd)
     if !isempty(props) && (cmd == "notice" || cmd == "warning" || cmd == "error")
-        print(' ', format_props(props))
+        print(' ')
+        ps = pairs(props)
+        n = length(ps)
+        for (i, p) in enumerate(ps)
+            print(p.first, "=", esc_prop(p.second))
+            i < n && print(',')
+        end
     end
     println(CMD_MARKER, esc_data(val))
 end
