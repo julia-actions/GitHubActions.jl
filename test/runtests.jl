@@ -38,9 +38,16 @@ const GHA = GitHubActions
     @test (@capture_out set_command_echo(false)) == "::echo::off\n"
 
     mktemp() do file, io
-        withenv("GITHUB_OUTPUT" => file) do
+        withenv("GITHUB_OUTPUT" => file, map(c -> string(c) => nothing, 'a':'z')...) do
             set_output("a", "b")
-            @test read(file, String) == "a=b\n"
+            @test read(file, String) == "a<<EOF\nb\nEOF\n"
+            set_output("b", "fooEOFbar")
+            @test read(file, String) == "a<<EOF\nb\nEOF\nb<<EOFEOF\nfooEOFbar\nEOFEOF\n"
+            rm(file)
+            set_output("c", [])
+            @test read(file, String) == "c<<EOF\n[]\nEOF\n"
+            set_output("d", nothing)
+            @test read(file, String) == "c<<EOF\n[]\nEOF\nd<<EOF\n\nEOF\n"
         end
     end
 
