@@ -130,7 +130,14 @@ set_command_echo(enable) = command("echo", (), enable ? "on" : "off")
 
 Set the output with name `k` to value `v`.
 """
-set_output(k, v) = add_to_file("GITHUB_OUTPUT", "$k=$v")
+function set_output(k, v)
+    val = cmd_value(v)
+    delimiter = "EOF"
+    while occursin(delimiter, val)
+        delimiter *= "EOF"
+    end
+    add_to_file("GITHUB_OUTPUT", join(["$k<<$delimiter", val, delimiter], "\n"))
+end
 
 """
     set_secret(v)
