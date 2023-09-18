@@ -130,13 +130,13 @@ const GHA = GitHubActions
     @testset "get_gha_level" begin
         for val in ("1", "true")
             withenv("RUNNER_DEBUG" => val) do
-                GHA.get_gha_level() === Logging.Debug
+                @test GHA.get_gha_level() === Logging.Debug
             end
         end
 
-        for val in ("0", "false", "", nothing)
+        for val in ("0", "false", "", nothing, "garbage")
             withenv("RUNNER_DEBUG" => val) do
-                GHA.get_gha_level() === Logging.Info
+                @test GHA.get_gha_level() === Logging.Info
             end
         end
     end
