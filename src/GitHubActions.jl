@@ -230,7 +230,7 @@ function get_gha_level()
     # `tryparse(Bool, "1")` does not work on Julia 1.0, so we special-case that value
     # (which is the only documented value for `RUNNER_DEBUG`, so any other case should be
     # due to the user setting it manually somehow).
-    env_str == "1" && return DEBUG
+    env_str == "1" && return Debug
     # Fallback for all other values:
     is_debug = something(tryparse(Bool, env_str), false)
     return is_debug ? Debug : Info
