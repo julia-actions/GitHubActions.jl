@@ -1,4 +1,4 @@
-using Logging: with_logger
+using Logging: Logging, with_logger
 using Test: @test, @testset, @test_throws
 
 using GitHubActions
@@ -110,16 +110,34 @@ const GHA = GitHubActions
         return Regex("^::$level file=$(file),line=\\d+::a")
     end
 
-    with_logger(GitHubActionsLogger()) do
+    with_logger(GitHubActionsLogger(Logging.Debug)) do
         @test match(rx("debug"), (@capture_out @debug "a")) !== nothing
         @test match(rx("warning"), (@capture_out @warn "a")) !== nothing
         @test match(rx("error"), (@capture_out @error "a")) !== nothing
         @test (@capture_out @info "a") == "a\n"
 
-        @test (@capture_out @info "a" b=1 c=2 d=Text("e\nf")) == "a\n  b = 1\n  c = 2\n  d = \n    e\n    f\n"
-        @test endswith((@capture_out @warn "a" b=1 c=2), "::a%0A  b = 1%0A  c = 2\n")
+        @test (@capture_out @info "a" b = 1 c = 2 d = Text("e\nf")) == "a\n  b = 1\n  c = 2\n  d = \n    e\n    f\n"
+        @test endswith((@capture_out @warn "a" b = 1 c = 2), "::a%0A  b = 1%0A  c = 2\n")
 
         expected = "::warning file=test/bar,line=1::foo\n"
-        @test (@capture_out @warn "foo" location=("bar", 1)) == expected
+        @test (@capture_out @warn "foo" location = ("bar", 1)) == expected
+    end
+
+    with_logger(GitHubActionsLogger(Logging.Info)) do
+        @test match(rx("debug"), (@capture_out @debug "a")) === nothing
+    end
+
+    @testset "get_gha_level" begin
+        for val in ("1", "true")
+            withenv("RUNNER_DEBUG" => val) do
+                @test GHA.get_gha_level() === Logging.Debug
+            end
+        end
+
+        for val in ("0", "false", "", nothing, "garbage")
+            withenv("RUNNER_DEBUG" => val) do
+                @test GHA.get_gha_level() === Logging.Info
+            end
+        end
     end
 end

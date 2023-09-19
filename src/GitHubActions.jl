@@ -18,7 +18,7 @@ export
     set_secret,
     start_group
 
-using Logging: Logging, AbstractLogger, Debug, Info, Warn, Error
+using Logging: Logging, AbstractLogger, LogLevel, Debug, Info, Warn, Error
 
 using JSON: json
 
@@ -213,14 +213,33 @@ function set_failed(msg)
 end
 
 """
-    GitHubActionsLogger()
+    GitHubActionsLogger(level)
 
 A logger that prints to standard output in the format expected by GitHub Actions.
+
+By default, GitHubActionsLogger inspects the
+[`RUNNER_DEBUG` environment variable](https://docs.github.com/en/actions/learn-github-actions/variables)
+to match the log-level to that set in GitHub Actions.
 """
-struct GitHubActionsLogger <: AbstractLogger end
+struct GitHubActionsLogger <: AbstractLogger
+    level::LogLevel
+end
+
+function get_gha_level()
+    env_str = get(ENV, "RUNNER_DEBUG", "false")
+    # `tryparse(Bool, "1")` does not work on Julia 1.0, so we special-case that value
+    # (which is the only documented value for `RUNNER_DEBUG`, so any other case should be
+    # due to the user setting it manually somehow).
+    env_str == "1" && return Debug
+    # Fallback for all other values:
+    is_debug = something(tryparse(Bool, env_str), false)
+    return is_debug ? Debug : Info
+end
+
+GitHubActionsLogger() = GitHubActionsLogger(get_gha_level())
 
 Logging.catch_exceptions(::GitHubActionsLogger) = true
-Logging.min_enabled_level(::GitHubActionsLogger) = Debug
+Logging.min_enabled_level(logger::GitHubActionsLogger) = logger.level
 Logging.shouldlog(::GitHubActionsLogger, args...) = true
 
 function Logging.handle_message(
@@ -229,7 +248,7 @@ function Logging.handle_message(
     location=nothing, kwargs...,
 )
     file, line = something(location, (file, line))
-    
+
     workspace = get(ENV, "GITHUB_WORKSPACE", nothing)
     if workspace !== nothing
         # In order for inline annotations to work correctly:
