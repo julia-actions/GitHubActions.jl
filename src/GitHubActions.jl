@@ -213,6 +213,15 @@ function set_failed(msg)
 end
 
 """
+    add_summary(v)
+
+Add `v` to the job summary.
+"""
+function add_summary(v)
+    add_to_file("GITHUB_STEP_SUMMARY", v)
+end
+
+"""
     GitHubActionsLogger(level)
 
 A logger that prints to standard output in the format expected by GitHub Actions.
