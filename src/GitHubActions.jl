@@ -3,6 +3,7 @@ module GitHubActions
 export
     GitHubActionsLogger,
     add_path,
+    add_summary,
     end_group,
     get_input,
     get_state,
