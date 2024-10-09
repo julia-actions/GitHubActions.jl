@@ -20,6 +20,8 @@ export
 
 using Logging: Logging, AbstractLogger, LogLevel, Debug, Info, Warn, Error
 
+const showvalue = VERSION ≥ v"1.11.0-DEV.1786" ? Base.CoreLogging.showvalue : Logging.showvalue
+
 using JSON: json
 
 const CMD_MARKER = "::"
@@ -256,7 +258,7 @@ function Logging.handle_message(
     end
     message = string(msg)
     for (k, v) in kwargs
-        result = sprint(Logging.showvalue, v)
+        result = sprint(showvalue, v)
         message *= "\n  $k = " * if occursin('\n', result)
             replace("\n" * result, '\n' => "\n    ")
         else
