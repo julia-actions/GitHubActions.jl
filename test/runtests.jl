@@ -67,6 +67,15 @@ const GHA = GitHubActions
         end
     end
 
+    mktemp() do file, io
+        withenv("GITHUB_STEP_SUMMARY" => file) do
+            add_summary("testsummary")
+            @test read(file, String) == "testsummary\n"
+            add_summary("anothersummary")
+            @test read(file, String) == "testsummary\nanothersummary\n"
+        end
+    end
+
     withenv(() -> (@test get_input("A") == ""), "INPUT_A" => "")
     withenv(() -> (@test get_input("A") == ""), "INPUT_A" => nothing)
     withenv(() -> (@test get_input("A") == "b"), "INPUT_A" => "b")
