@@ -3,6 +3,7 @@ module GitHubActions
 export
     GitHubActionsLogger,
     add_path,
+    add_summary,
     end_group,
     get_input,
     get_state,
@@ -212,6 +213,15 @@ Error with `msg`, and set the process exit code to `1`.
 function set_failed(msg)
     atexit(fail)
     log_error(msg)
+end
+
+"""
+    add_summary(v)
+
+Add `v` to the job summary.
+"""
+function add_summary(v)
+    add_to_file("GITHUB_STEP_SUMMARY", v)
 end
 
 """
